@@ -1,0 +1,1389 @@
+{
+  "date": "Fri May 26 2023",
+  "make": { "src": ["items.c"], "prog": [], "unit": [], "integration": [] },
+  "mode": "dev",
+  "name": "items",
+  "files": [
+    { "base": "", "name": "id" },
+    { "base": "", "name": "CMakeLists.txt" },
+    {
+      "name": "src",
+      "folder": [
+        { "base": "src", "name": "sql", "folder": [] },
+        {
+          "base": "src",
+          "name": "www",
+          "folder": [
+            { "base": "src/www", "name": "items.json" },
+            { "base": "src/www", "name": "newitem.js" },
+            { "base": "src/www", "name": "category.js" },
+            { "base": "src/www", "name": "item.js" },
+            { "base": "src/www", "name": "items.js" }
+          ]
+        },
+        { "base": "src", "name": "tests", "folder": [] },
+        { "base": "src", "date": "Wed Apr 03 2024", "name": "items.c" }
+      ]
+    },
+    { "base": "", "date": "Wed Apr 03 2024", "name": "items.json" }
+  ],
+  "owner": "gbe",
+  "roles": [{ "desc": "generic role", "name": "items" }],
+  "views": [
+    {
+      "vid": 0,
+      "menu": true,
+      "name": "items",
+      "type": "view",
+      "modals": [
+        { "urn": "view:items/category", "name": "category", "type": "vref" },
+        { "urn": "view:items/newitem", "name": "newItem", "type": "vref" }
+      ],
+      "oninit": "data = app.getComponentData()[0]; newit.warehouses = app.getComponentData()[1]; settings = app.getComponentData()[2]; categories = app.getComponentData()[3]; var f; data.map((d)=>{     if((f=utils.bsearch(settings, d, (e, t)=>{  if(e.id_items == t.id)return 0;         else if(e.id_items < t.id)return 1;         else return -1;  }))>=0){  d.warehouses = settings[f].settings;     }else d.warehouses = []; }); app.setUserData({categories, current: null, warehouses:newit.warehouses}); ",
+      "actions": [
+        {
+          "fn": "let ddata = {};\nddata.categories = categories;\nddata.getCategoryPath = items_cls.getCategoryPath;\nddata.getCategoryParent = items_cls.getCategoryParent;\nddata.getCategoryObject = items_cls.getCategoryObject;\nddata.getCategories = items_cls.getCategories;\n\napp.openModal(null, 'col-md-8 offset-md-2', [],ddata, category).then((dd)=>{if(dd)/*your code here*/;})",
+          "icon": "fa fa-sitemap",
+          "role": "",
+          "type": "vwaction",
+          "title": " new category"
+        },
+        {
+          "fn": "newit.new = true;\nnewit.item = {};\nnewit.itemrefn = items_cls.it_getItemFromItemRef;\napp.openModal(null, 'col-md-4 offset-md-4', [],newit, newItem)\n    .then((dd)=>{\n\tif(dd){\n\t    app.request({\n\t\tmethod: 'post',\n\t\turl: '/items/items0/refs/items',\n\t\tbody: {\n\t\t    item: dd.item\n\t\t}\n\t    }).then((r)=>{\n\t\tif(r&&r.status=='ok'){\n\t\t    app.alert('L\\'article a été créé');\n\t\t    newit.item = {id: parseInt(r.data), item: newit.item, warehouses: []}; \n\t\t    data.push(newit.item);\n\n\t\t    newit.new = false;\n\t\t    newit.categories = categories;\n\t\t    app.openModal(null, 'col-md-6 offset-md-3', [], newit, itemView)\n\t\t}else\n\t\t    app.alert('L\\'opération a échoué');\n\t\t\n\t    });\n\t}\n    })\n",
+          "icon": "fa fa-plus",
+          "role": "",
+          "type": "vwaction",
+          "title": "nouvel article"
+        }
+      ],
+      "default": true,
+      "preload": "return Promise.all([app.request({method: 'get',url: '/items/items0/refs/items'  }),app.request({method: 'get',url: '/items/warehouses0/refs/warehouse'}),app.request({method: 'get',url: '/items/items0/settings'}),app.request({method: 'get', url: '/items/items0/categories'})]);",
+      "oncreate": null,
+      "onremove": null,
+      "onupdate": null,
+      "template": [
+        {
+          "id": 0,
+          "pos": 0,
+          "name": "root",
+          "open": true,
+          "type": "root",
+          "isOpen": true,
+          "children": [
+            {
+              "id": 1,
+              "pos": 0,
+              "card": false,
+              "name": "group1",
+              "open": true,
+              "type": "group",
+              "class": "col-md-8 offset-md-2",
+              "isOpen": true,
+              "parent": 0,
+              "children": [
+                {
+                  "id": 3,
+                  "pos": 0,
+                  "name": "group3",
+                  "open": false,
+                  "type": "group",
+                  "class": "d-flex justify-content-end mb-4",
+                  "isOpen": true,
+                  "parent": 1,
+                  "children": [
+                    {
+                      "id": 4,
+                      "pos": 0,
+                      "name": "group4",
+                      "open": false,
+                      "type": "group",
+                      "class": "",
+                      "isOpen": true,
+                      "parent": 3,
+                      "children": [
+                        {
+                          "id": 5,
+                          "pos": 0,
+                          "name": "input5",
+                          "type": "input",
+                          "value": "$pattern",
+                          "parent": 4,
+                          "oninput": true,
+                          "subtype": "text",
+                          "placeholder": "search ..."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "pos": 1,
+                  "data": "$data",
+                  "name": "table2",
+                  "open": true,
+                  "type": "table",
+                  "filter": "it.item.reference.startsWith(pattern)||it.item.name.startsWith(pattern)",
+                  "isOpen": true,
+                  "parent": 1,
+                  "headers": "$headers",
+                  "children": [
+                    {
+                      "id": 6,
+                      "pos": 0,
+                      "name": "span6",
+                      "type": "span",
+                      "value": "@itx",
+                      "parent": 2
+                    },
+                    {
+                      "id": 23,
+                      "pos": 1,
+                      "href": "/home/items/item",
+                      "name": "link23",
+                      "open": true,
+                      "type": "link",
+                      "isOpen": true,
+                      "parent": 2,
+                      "onclick": "app.getUserData().current = it;\napp.go('item', it.item.reference);\nreturn false;",
+                      "children": [
+                        {
+                          "id": 25,
+                          "pos": 0,
+                          "name": "span7_25",
+                          "type": "span",
+                          "class": "",
+                          "value": "@it.item.reference",
+                          "parent": 23
+                        }
+                      ]
+                    },
+                    {
+                      "id": 8,
+                      "pos": 2,
+                      "href": "/home/items/item",
+                      "name": "link8",
+                      "open": false,
+                      "type": "link",
+                      "isOpen": true,
+                      "parent": 2,
+                      "onclick": "app.getUserData().current = it;\napp.go('item', it.item.reference);\nreturn false;",
+                      "children": [
+                        {
+                          "id": 9,
+                          "pos": 0,
+                          "name": "span9",
+                          "type": "span",
+                          "class": "",
+                          "value": "@it.item.name",
+                          "parent": 8
+                        }
+                      ]
+                    },
+                    {
+                      "id": 12,
+                      "pos": 3,
+                      "name": "span12",
+                      "type": "span",
+                      "value": "@it.item.type",
+                      "parent": 2
+                    },
+                    {
+                      "id": 13,
+                      "pos": 4,
+                      "name": "span13",
+                      "type": "span",
+                      "value": "@it.item.familly",
+                      "parent": 2
+                    },
+                    {
+                      "id": 14,
+                      "pos": 5,
+                      "name": "span14",
+                      "type": "span",
+                      "value": "@it.item.sfamilly",
+                      "parent": 2
+                    }
+                  ]
+                }
+              ],
+              "conditional": "data!=null"
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "code": "()=>{return app.request({method:'GET',url:'/items/items0/categories'});}",
+          "name": "item_getcategories"
+        },
+        {
+          "code": "(itemref)=>{return app.request({method:'GET',url:'/items/items0/itemref?itemref='+itemref});}",
+          "name": "it_getItemFromItemRef"
+        },
+        { "code": "()=>{/*put your code here */}", "name": "go" },
+        {
+          "code": "(root, categories)=>{\n    categories.push(root.name);\n    if(root.members)\n\tfor(let c of root.members)\n\t    items_cls.getCategories(c, categories);\n}\n",
+          "name": "getCategories"
+        },
+        {
+          "code": "(root, child)=>{\n    let parent;\n  if(root.members)\n    for(let c of root.members){\n\tif(c.name == child)\n\t    return root.name;\n\telse if(c.members){\n\t    if((parent=items_cls.getCategoryParent(c, child)))\n\t\treturn parent;\n\t}\n    }\n\n    return null;\n}",
+          "name": "getCategoryParent"
+        },
+        {
+          "code": "(root, child, path)=>{\n    let realpath;\n    if(root.name == child)\n\treturn path;\n    if(root.members)\n\tfor(let pos=0; pos < root.members.length; pos++){\n\t    if(path == '')\n\t\trealpath = 'members,'+pos;\n\t    else\n\t\trealpath = path+',members,'+pos;\n\t    if((realpath=items_cls.getCategoryPath(root.members[pos], child, realpath)))\n\t\treturn realpath;\n\t}\n    return null;\n}",
+          "name": "getCategoryPath"
+        },
+        {
+          "code": "(root, elt)=>{\n    let found;\n\n    if(root.name == elt)\n\treturn root;\n    if(root.members)\n\tfor(let c of root.members){\n\t    if(( found=items_cls.getCategoryObject(c, elt)))\n\t\treturn found;\n\t}\n    \n    return null;\n}",
+          "name": "getCategoryObject"
+        }
+      ],
+      "variables": [
+        {
+          "name": "pattern",
+          "test": null,
+          "value": "''",
+          "content": null,
+          "attribute": "value",
+          "component": 5
+        },
+        {
+          "name": "headers",
+          "test": "[\"#\",\"reference\",\"name\",\"type\", \"familly\", \"sub. familly\"]",
+          "value": "[\"#\",\"référence\",\"désignation\",\"type\", \"famille\", \"sous famille\"]",
+          "content": null,
+          "attribute": "headers",
+          "component": 2
+        },
+        {
+          "name": "data",
+          "test": "[]",
+          "value": "[]",
+          "content": null,
+          "attribute": "data",
+          "component": 2
+        },
+        {
+          "name": "curstate",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "settings",
+          "test": null,
+          "value": "[]",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "categories",
+          "test": null,
+          "value": "[]",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "newit",
+          "test": null,
+          "value": "{}",
+          "content": null,
+          "attribute": null,
+          "component": null
+        }
+      ],
+      "displayname": "Articles"
+    },
+    {
+      "vid": 1,
+      "name": "newitem",
+      "type": "import",
+      "modals": [
+        { "urn": "view:items0/class", "name": "classv", "type": "vref" },
+        { "urn": "view:items0/base", "name": "base", "type": "vref" },
+        { "urn": "view:items0/warehouse", "name": "warehouse", "type": "vref" }
+      ],
+      "oninit": "if(vnode.attrs.data) data = vnode.attrs.data;",
+      "actions": [],
+      "oncreate": null,
+      "onremove": null,
+      "onupdate": null,
+      "template": [
+        {
+          "id": 0,
+          "pos": 0,
+          "name": "root",
+          "open": true,
+          "type": "root",
+          "isOpen": true,
+          "children": [
+            {
+              "id": 2,
+              "pos": 0,
+              "name": "group",
+              "open": true,
+              "type": "group",
+              "isOpen": true,
+              "parent": 0,
+              "children": [
+                {
+                  "id": 5,
+                  "pos": 0,
+                  "name": "newdesign",
+                  "open": true,
+                  "type": "group",
+                  "isOpen": true,
+                  "parent": 2,
+                  "children": [
+                    {
+                      "id": 7,
+                      "pos": 0,
+                      "name": "header",
+                      "type": "group",
+                      "class": "d-flex justify-content-between",
+                      "isOpen": true,
+                      "parent": 5,
+                      "children": [
+                        {
+                          "id": 8,
+                          "pos": 0,
+                          "name": "hx8",
+                          "type": "hx",
+                          "value": "Nouvel article",
+                          "parent": 7,
+                          "xparam": "4"
+                        },
+                        {
+                          "id": 9,
+                          "pos": 1,
+                          "name": "span9",
+                          "type": "span",
+                          "class": "fa fa-times mt-2",
+                          "parent": 7,
+                          "onclick": "app.cancelModal();"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 10,
+                      "pos": 1,
+                      "name": "content_form",
+                      "open": true,
+                      "type": "group",
+                      "class": "mt-4",
+                      "isOpen": true,
+                      "parent": 5,
+                      "children": [
+                        {
+                          "id": 11,
+                          "pos": 0,
+                          "name": "form-row",
+                          "open": true,
+                          "type": "group",
+                          "class": "form-row",
+                          "isOpen": true,
+                          "parent": 10,
+                          "children": [
+                            {
+                              "id": 15,
+                              "pos": 0,
+                              "name": "col",
+                              "open": true,
+                              "type": "group",
+                              "class": "col",
+                              "isOpen": true,
+                              "parent": 11,
+                              "children": [
+                                {
+                                  "id": 16,
+                                  "pos": 0,
+                                  "hook": "let value = e.target.value.toLowerCase();\nvnode.attrs.data.item.reference = value;\nif(!value){\n    newitem_cls.setDangerClass();\n    colClass = 'danger';\n    isButtonBlocked = true;\n    return;\n}\nitemBlocked=true\nvnode.attrs.data.itemrefn(value).then((d)=>{\n    loading = false;\n    itemBlocked = false;\n    if(d){\n\tnewitem_cls.setDangerClass();\n\tcolClass = 'danger';\n    }\n    else{\n\tnewitem_cls.setSuccessClass();\n\tcolClass = 'success';\n\tif(vnode.attrs.data.item.name)\n\t    isButtonBlocked = false;\n\telse\n\t    newitem_cls.setFocus('nwit_reference');\n    }\n\n    \n})",
+                                  "name": "nwit_reference",
+                                  "type": "input",
+                                  "label": "référence",
+                                  "value": "%data.item.reference",
+                                  "parent": 15,
+                                  "subtype": "text",
+                                  "disabled": "$itemBlocked"
+                                }
+                              ]
+                            },
+                            {
+                              "id": 13,
+                              "pos": 1,
+                              "name": "loading",
+                              "open": false,
+                              "type": "group",
+                              "class": "spinner-border",
+                              "isOpen": true,
+                              "parent": 11,
+                              "children": [
+                                {
+                                  "id": 14,
+                                  "pos": 0,
+                                  "name": "span14",
+                                  "type": "span",
+                                  "class": "sr-only",
+                                  "value": "loading...",
+                                  "parent": 13
+                                }
+                              ],
+                              "conditional": "loading"
+                            }
+                          ]
+                        },
+                        {
+                          "id": 23,
+                          "pos": 1,
+                          "name": "errortext",
+                          "open": false,
+                          "type": "group",
+                          "class": "mb-1 text-danger",
+                          "style": "margin-top:-10px;",
+                          "isOpen": true,
+                          "parent": 10,
+                          "children": [
+                            {
+                              "id": 25,
+                              "pos": 0,
+                              "name": "span-exclamation",
+                              "type": "span",
+                              "class": "fa fa-exclamation mr-1",
+                              "parent": 23
+                            },
+                            {
+                              "id": 24,
+                              "pos": 1,
+                              "name": "span24",
+                              "type": "span",
+                              "class": "",
+                              "title": "",
+                              "value": " la référence est obligatoire et unique",
+                              "parent": 23
+                            }
+                          ],
+                          "conditional": "colClass=='danger'"
+                        },
+                        {
+                          "id": 17,
+                          "pos": 2,
+                          "hook": "let value = e.target.value.toLowerCase();\nvnode.attrs.data.item.name = value;\nif(!value){\n    isButtonBlocked = true;\n    return;\n}\nif(vnode.attrs.data.item.reference && colClass == 'success')\n    isButtonBlocked = false;\nelse\n    newitem_cls.setFocus('nwit_nameid');",
+                          "name": "nwit_nameid",
+                          "type": "input",
+                          "label": "désignation",
+                          "value": "%data.item.name",
+                          "parent": 10,
+                          "subtype": "text",
+                          "disabled": "$itemBlocked"
+                        },
+                        {
+                          "id": 18,
+                          "pos": 3,
+                          "name": "it_ok",
+                          "type": "button",
+                          "class": "btn btn-block btn-primary",
+                          "value": "ok",
+                          "parent": 10,
+                          "onclick": "app.closeModal();",
+                          "subtype": "submit",
+                          "disabled": "$isButtonBlocked"
+                        },
+                        {
+                          "id": 19,
+                          "pos": 4,
+                          "name": "it_close",
+                          "type": "button",
+                          "class": "btn btn-link btn-block",
+                          "value": "annuler",
+                          "parent": 10,
+                          "onclick": "app.cancelModal();",
+                          "subtype": "button"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "conditional": ""
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "code": "()=>{\n    let div = document.getElementById(\"nwit_reference\");\n    if(colClass == 'success'){\n\tdiv.classList.remove('border');\n\tdiv.classList.remove('border-success');\n    }\n    \n    div.classList.add('border');\n    div.classList.add('border-danger');\n}",
+          "name": "setDangerClass"
+        },
+        {
+          "code": "()=>{\n    let div = document.getElementById(\"nwit_reference\");\n    if(colClass == 'danger'){\n\tdiv.classList.remove('border');\n\tdiv.classList.remove('border-danger');\n    }\n    \n    div.classList.add('border');\n    div.classList.add('border-success');\n}",
+          "name": "setSuccessClass"
+        },
+        {
+          "code": "(id)=>{\n    document.getElementById(id).focus();\n}\n",
+          "name": "setFocus"
+        }
+      ],
+      "variables": [
+        {
+          "name": "data",
+          "test": null,
+          "value": "{}",
+          "content": null,
+          "attribute": "data",
+          "component": 1
+        },
+        {
+          "name": "loading",
+          "test": null,
+          "value": "false",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "itemBlocked",
+          "test": null,
+          "value": "false",
+          "content": null,
+          "attribute": "value",
+          "component": null
+        },
+        {
+          "name": "colClass",
+          "test": null,
+          "value": "''",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "isButtonBlocked",
+          "test": null,
+          "value": "true",
+          "content": null,
+          "attribute": "value",
+          "component": null
+        }
+      ]
+    },
+    {
+      "vid": 2,
+      "name": "item",
+      "type": "view",
+      "level": 2,
+      "modals": [
+        { "urn": "view:items0/class", "name": "classif", "type": "vref" },
+        { "urn": "view:items0/warehouse", "name": "warehouse", "type": "vref" },
+        { "urn": "view:items0/base", "name": "base", "type": "vref" }
+      ],
+      "oninit": "if(!app.getUserData()){     app.go('items');     return; } current = app.getUserData().current; data ={     item: current,     categories:app.getUserData().categories,     partialupdate: item_cls.partialupdate,     newsetting: item_cls.newsetting,     warehouses: app.getUserData().warehouses, removesetting: item_cls.removefromwarehouses};",
+      "actions": [
+        {
+          "fn": "app.go('items');",
+          "icon": "fa fa-arrow-left",
+          "role": "",
+          "type": "vwaction",
+          "title": "back"
+        }
+      ],
+      "oncreate": null,
+      "onremove": null,
+      "onupdate": null,
+      "template": [
+        {
+          "id": 0,
+          "pos": 0,
+          "name": "root",
+          "type": "root",
+          "isOpen": true,
+          "children": [
+            {
+              "id": 1,
+              "pos": 0,
+              "card": true,
+              "name": "group1",
+              "open": true,
+              "type": "group",
+              "class": "col-md-8 offset-md-2",
+              "style": "min-height:60vh;",
+              "isOpen": true,
+              "parent": 0,
+              "children": [
+                {
+                  "id": 83,
+                  "pos": 0,
+                  "name": "group83",
+                  "open": true,
+                  "rows": "2",
+                  "type": "group",
+                  "class": "mt-4",
+                  "isOpen": true,
+                  "parent": 1,
+                  "widths": [6, 6],
+                  "children": [
+                    {
+                      "id": 84,
+                      "pos": 0,
+                      "name": "input84",
+                      "type": "input",
+                      "value": "$current.item.reference",
+                      "parent": 83,
+                      "subtype": "text",
+                      "readonly": true
+                    },
+                    {
+                      "id": 85,
+                      "pos": 1,
+                      "name": "input85",
+                      "type": "input",
+                      "value": "$current.item.name",
+                      "parent": 83,
+                      "subtype": "text",
+                      "readonly": true
+                    }
+                  ]
+                },
+                {
+                  "id": 4,
+                  "pos": 1,
+                  "name": "nav",
+                  "open": true,
+                  "type": "group",
+                  "class": "ml-2 mr-2 mt-4",
+                  "isOpen": true,
+                  "parent": 1,
+                  "children": [
+                    {
+                      "id": 5,
+                      "pos": 0,
+                      "name": "nav5",
+                      "open": false,
+                      "type": "nav",
+                      "active": "base",
+                      "isOpen": true,
+                      "parent": 4,
+                      "headers": "$headers",
+                      "subtype": "tabs",
+                      "children": [
+                        {
+                          "id": 6,
+                          "pos": 0,
+                          "name": "basic",
+                          "open": true,
+                          "type": "group",
+                          "isOpen": true,
+                          "parent": 5,
+                          "children": [
+                            {
+                              "id": 76,
+                              "pos": 0,
+                              "data": "$data",
+                              "name": "display76",
+                              "type": "display",
+                              "view": "base",
+                              "parent": 6
+                            }
+                          ]
+                        },
+                        {
+                          "id": 7,
+                          "pos": 1,
+                          "name": "classificaiton",
+                          "open": true,
+                          "type": "group",
+                          "isOpen": true,
+                          "parent": 5,
+                          "children": [
+                            {
+                              "id": 77,
+                              "pos": 0,
+                              "data": "$data",
+                              "name": "display77",
+                              "type": "display",
+                              "view": "classif",
+                              "parent": 7
+                            }
+                          ]
+                        },
+                        {
+                          "id": 88,
+                          "pos": 2,
+                          "name": "entrepots",
+                          "type": "group",
+                          "isOpen": true,
+                          "parent": 5,
+                          "children": [
+                            {
+                              "id": 89,
+                              "pos": 0,
+                              "data": "$data",
+                              "name": "display89",
+                              "type": "display",
+                              "view": "warehouse",
+                              "parent": 88
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "code": "(ws, id)=>{\nfor(w of ws)\nif(id == w.id)\nreturn w.warehouse.name\n\nreturn '';\n}",
+          "name": "getwarehousename"
+        },
+        {
+          "code": "(id,attribute,value)=>{return app.request({method:'PUT',url:'/items/items0/ids/'+id+'',body:{attribute:attribute,value:value}});}\n",
+          "name": "partialupdate"
+        },
+        {
+          "code": "(item,warehouses)=>{return app.request({method:'POST',url:'/items/items0/settings',body:{item:item,warehouses:warehouses}});}",
+          "name": "newsetting"
+        },
+        {
+          "code": "(item,warehouses)=>{return app.request({method:'DELETE',url:'/items/items0/settings',body:{item:item,warehouses:warehouses}});}",
+          "name": "removefromwarehouses"
+        }
+      ],
+      "variables": [
+        {
+          "name": "types",
+          "test": "[]",
+          "value": "[]",
+          "content": null,
+          "attribute": "datalist",
+          "component": 19
+        },
+        {
+          "name": "data",
+          "test": null,
+          "value": "{\"item\": {\"item\":{}}}",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "current",
+          "test": null,
+          "value": "{\"item\":{}}",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "headers",
+          "test": "[\"Principal\", \"Classification\", \"Entrepôts\"]",
+          "value": "[\"Principal\", \"Classification\", \"Entrepôts\"]",
+          "content": null,
+          "attribute": "headers",
+          "component": 5
+        }
+      ]
+    },
+    {
+      "vid": 3,
+      "name": "category",
+      "type": "import",
+      "modals": [],
+      "oninit": "categories.push(vnode.attrs.data.categories); console.log(categories);  getCategoryPath = vnode.attrs.data.getCategoryPath; getCategoryParent = vnode.attrs.data.getCategoryParent; getCategoryObject = vnode.attrs.data.getCategoryObject; getCategories = vnode.attrs.data.getCategories; getCategories(categories[0], parents);",
+      "actions": [],
+      "oncreate": null,
+      "onremove": null,
+      "onupdate": null,
+      "template": [
+        {
+          "id": 0,
+          "pos": 0,
+          "name": "root",
+          "open": true,
+          "type": "root",
+          "isOpen": true,
+          "children": [
+            {
+              "id": 1,
+              "pos": 0,
+              "name": "main",
+              "open": false,
+              "type": "group",
+              "class": "",
+              "style": " height:70vh;",
+              "isOpen": true,
+              "parent": 0,
+              "children": [
+                {
+                  "id": 33,
+                  "pos": 0,
+                  "name": "header_33",
+                  "open": true,
+                  "type": "group",
+                  "class": "d-flex justify-content-end mb-2",
+                  "isOpen": true,
+                  "parent": 1,
+                  "children": [
+                    {
+                      "id": 35,
+                      "pos": 0,
+                      "name": "span11_35",
+                      "type": "span",
+                      "class": "fa fa-times",
+                      "parent": 33,
+                      "onclick": "app.cancelModal();"
+                    }
+                  ]
+                },
+                {
+                  "id": 26,
+                  "pos": 1,
+                  "name": "row",
+                  "open": true,
+                  "rows": "2",
+                  "type": "group",
+                  "isOpen": true,
+                  "parent": 1,
+                  "widths": [4, 8],
+                  "children": [
+                    {
+                      "id": 27,
+                      "pos": 0,
+                      "name": "categories",
+                      "open": true,
+                      "type": "group",
+                      "class": "border-right",
+                      "isOpen": true,
+                      "parent": 26,
+                      "children": [
+                        {
+                          "id": 29,
+                          "pos": 0,
+                          "name": "hx29",
+                          "type": "hx",
+                          "value": "Categories",
+                          "parent": 27,
+                          "xparam": "4"
+                        },
+                        {
+                          "id": 31,
+                          "pos": 1,
+                          "name": "tree part_31",
+                          "open": true,
+                          "type": "group",
+                          "class": "ml-4 mr-4",
+                          "style": "overflow-y:auto; height:50vh;",
+                          "isOpen": true,
+                          "parent": 27,
+                          "children": [
+                            {
+                              "id": 32,
+                              "pos": 0,
+                              "name": "treeview5_32",
+                              "type": "treeview",
+                              "nodes": "$categories",
+                              "folder": "members",
+                              "parent": 31,
+                              "setter": "category_cls.setcurrentcategory(n);",
+                              "actions": "$actions",
+                              "display": "name"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 28,
+                      "pos": 1,
+                      "name": "descr",
+                      "open": true,
+                      "type": "group",
+                      "isOpen": true,
+                      "parent": 26,
+                      "children": [
+                        {
+                          "id": 30,
+                          "pos": 0,
+                          "name": "hx30",
+                          "type": "hx",
+                          "value": "Description",
+                          "parent": 28,
+                          "xparam": "4"
+                        },
+                        {
+                          "id": 36,
+                          "pos": 1,
+                          "name": "descrview",
+                          "open": true,
+                          "type": "group",
+                          "isOpen": true,
+                          "parent": 28,
+                          "children": [
+                            {
+                              "id": 37,
+                              "pos": 0,
+                              "hook": "current.name = e.target.value;\ncurrent.disabled = false;",
+                              "name": "input37",
+                              "type": "input",
+                              "label": "categorie",
+                              "value": "$current.name",
+                              "parent": 36,
+                              "subtype": "text"
+                            },
+                            {
+                              "id": 51,
+                              "pos": 1,
+                              "hook": "current.parent = e.target.value;\ncurrent.disabled = false;",
+                              "name": "parent",
+                              "type": "input",
+                              "label": "Categorie parente",
+                              "value": "$current.parent",
+                              "parent": 36,
+                              "subtype": "text",
+                              "datalist": "$parents"
+                            },
+                            {
+                              "id": 39,
+                              "pos": 2,
+                              "hook": "current.desc = e.target.value;\ncurrent.disabled = false;",
+                              "name": "textarea39",
+                              "type": "textarea",
+                              "label": "description",
+                              "value": "$current.desc",
+                              "parent": 36
+                            },
+                            {
+                              "id": 40,
+                              "pos": 3,
+                              "name": "record",
+                              "type": "button",
+                              "class": "btn btn-primary btn-block",
+                              "value": "Enregistrer",
+                              "parent": 36,
+                              "onclick": "category_cls.saveCategory();",
+                              "subtype": "button",
+                              "disabled": "$current.disabled"
+                            },
+                            {
+                              "id": 46,
+                              "pos": 4,
+                              "name": "reset",
+                              "type": "button",
+                              "class": "btn btn-block btn-link",
+                              "value": "Effacer le contenu",
+                              "parent": 36,
+                              "onclick": "category_cls.cleancurrentcategory();",
+                              "subtype": "button"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "code": "(path,data)=>{return app.request({method:'PUT',url:'/items/items0/categories',body:{path:path,data:data}});}",
+          "name": "item_updatecategories"
+        },
+        {
+          "code": "(n)=>{\nif(n.name.startsWith(':'))\nreturn;\ncurrentNode = n;\ncurrent.click = true;\n    current.disabled = true;\n    current.name = n.name;\n    current.desc = n.desc;\ncurrent.parent = getCategoryParent(categories[0], n.name);\n}",
+          "name": "setcurrentcategory"
+        },
+        {
+          "code": "()=>{\ncurrent = {disabled: true};\ncurrentNode=null;\n}",
+          "name": "cleancurrentcategory"
+        },
+        {
+          "code": "()=>{\n    let parent, data, path;\n    if(current.click && current.disabled == true)\n\treturn;\n    \n    let found = getCategoryObject(categories[0], current.parent);\n    if(found)\n\tparent = found;\n    else\n\tparent = categories[0];\n\n    if(current.click)\n\tdata = {name: current.name, desc: current.desc, members: currentNode.members};\n    else if(!parent.members){\n\tdata = [{name: current.name, desc: current.desc}];\n    }\n    else{\n\tdata = {name: current.name, desc: current.desc};\n    }\n\n    if(current.click)\n\tfound = getCategoryPath(categories[0], currentNode.name, '');\n    else\n\tfound = getCategoryPath(categories[0], parent.name, '');\n\n    if(!current.click){\n\tif(Array.isArray(data))\n\t    found += (found=='')?'members': ',members';\n\telse\n\t    found += (found=='')?('members,'+ parent.members.length):(',members,'+ parent.members.length);\n    }\n\n    category_cls.item_updatecategories('{'+found+'}', data)\n\t.then((d)=>{\n\t    if(d&&d.status=='ok'){\n\t\tparents.length = 0;\n\t\tif(currentNOde){\n\t\t    currentNode.name = data.name;\n\t\t    currentNode.desc = data.desc;\n\t\t}\n\t\telse if(parent.members)\n\t\t    parent.members.push(data);\n\t\telse\n\t\t    parent.members = data;\n\t\tgetCategories(categories[0], parents);\n\t\tcategory_cls.cleancurrentcategory();\n\t    }\n\t})\n\t.catch((d)=>{\n\t    category_cls.cleancurrentcategory();\n\t    app.alert('opération échouée');\n\t});\n}",
+          "name": "saveCategory"
+        }
+      ],
+      "variables": [
+        {
+          "name": "categories",
+          "test": null,
+          "value": "[]",
+          "content": null,
+          "attribute": "nodes",
+          "component": 5
+        },
+        {
+          "name": "actions",
+          "test": null,
+          "value": "[]",
+          "content": null,
+          "attribute": "actions",
+          "component": 5
+        },
+        {
+          "name": "parents",
+          "test": null,
+          "value": "[]",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "current",
+          "test": null,
+          "value": "{\"disabled\":true}",
+          "content": null,
+          "attribute": "value",
+          "component": null
+        },
+        {
+          "name": "getCategories",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "getCategoryPath",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "getCategoryParent",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "getCategoryObject",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        },
+        {
+          "name": "currentNode",
+          "test": null,
+          "value": "null",
+          "content": null,
+          "attribute": null,
+          "component": null
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "path": "/items/items0/refs/{ref}",
+      "type": "inherited",
+      "title": "items from ref",
+      "parent": "",
+      "methods": [
+        {
+          "id": "new",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "POST",
+          "type": "inherited",
+          "request": {
+            "params": [
+              { "name": "ref", "style": "template", "required": true },
+              {
+                "name": "item",
+                "open": true,
+                "type": "object",
+                "style": "plain",
+                "required": true,
+                "definition": [
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "required": true,
+                    "definition": null
+                  },
+                  {
+                    "name": "reference",
+                    "type": "string",
+                    "required": true,
+                    "definition": null
+                  }
+                ]
+              },
+              {
+                "name": "userid",
+                "style": "internal",
+                "value": "$id",
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "getfromref",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "GET",
+          "type": "inherited",
+          "request": {
+            "params": [{ "name": "ref", "style": "template", "required": true }]
+          }
+        },
+        {
+          "id": "addref",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "PUT",
+          "type": "inherited",
+          "request": {
+            "params": [
+              { "name": "ref", "style": "template", "required": true },
+              {
+                "name": "item",
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "item" }]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/items/items0/",
+      "type": "inherited",
+      "title": "items",
+      "parent": "",
+      "methods": [
+        {
+          "id": "get",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "GET",
+          "type": "inherited",
+          "request": {
+            "params": [{ "name": "ids", "style": "query", "required": true }]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/items/warehouses0/refs/{ref}",
+      "type": "inherited",
+      "title": "warehouses",
+      "parent": "",
+      "methods": [
+        {
+          "id": "getfromref",
+          "code": { "src": "", "ronly": true },
+          "from": "warehouses0",
+          "name": "GET",
+          "type": "inherited",
+          "request": {
+            "params": [{ "name": "ref", "style": "template", "required": true }]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/items/items0/ids/{id}",
+      "type": "inherited",
+      "title": "one",
+      "parent": "",
+      "methods": [
+        {
+          "id": "partialupdate",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "PUT",
+          "type": "inherited",
+          "request": {
+            "params": [
+              { "name": "id", "style": "template", "required": true },
+              {
+                "name": "attribute",
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "attribute" }]
+              },
+              {
+                "name": "value",
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "value" }]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/items/items0/categories",
+      "type": "inherited",
+      "title": "categories",
+      "parent": "",
+      "methods": [
+        {
+          "id": "item_updatecategories",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "PUT",
+          "type": "inherited",
+          "request": {
+            "params": [
+              {
+                "name": "path",
+                "open": true,
+                "type": "string",
+                "style": "plain",
+                "required": true,
+                "definition": null
+              },
+              {
+                "name": "data",
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "data" }]
+              }
+            ]
+          }
+        },
+        {
+          "id": "item_getcategories",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "GET",
+          "type": "inherited",
+          "request": { "params": [] }
+        }
+      ]
+    },
+    {
+      "path": "/items/items0/itemref",
+      "type": "inherited",
+      "title": "itemref",
+      "parent": "",
+      "methods": [
+        {
+          "id": "it_getItemFromItemRef",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "GET",
+          "type": "inherited",
+          "request": {
+            "params": [
+              { "name": "itemref", "style": "query", "required": true }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/items/items0/settings/",
+      "type": "inherited",
+      "title": "setting v2",
+      "parent": "",
+      "methods": [
+        {
+          "id": "newsetting",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "POST",
+          "type": "inherited",
+          "request": {
+            "params": [
+              {
+                "name": "item",
+                "open": true,
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "item" }]
+              },
+              {
+                "name": "warehouses",
+                "open": false,
+                "type": "array",
+                "style": "plain",
+                "required": true,
+                "definition": [{ "name": "items" }]
+              },
+              {
+                "name": "userid",
+                "style": "internal",
+                "value": "$id",
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "getsetting",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "GET",
+          "type": "inherited",
+          "request": { "params": [] }
+        },
+        {
+          "id": "removefromwarehouses",
+          "code": { "src": "", "ronly": true },
+          "from": "items0",
+          "name": "DELETE",
+          "type": "inherited",
+          "request": {
+            "params": [
+              {
+                "name": "item",
+                "open": true,
+                "type": "number",
+                "style": "plain",
+                "required": true,
+                "definition": null
+              },
+              {
+                "name": "warehouses",
+                "open": true,
+                "type": "array",
+                "style": "plain",
+                "required": true,
+                "definition": [
+                  {
+                    "name": "items",
+                    "type": "number",
+                    "required": true,
+                    "definition": null
+                  }
+                ]
+              },
+              {
+                "name": "userid",
+                "style": "internal",
+                "value": "$id",
+                "required": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "activities": { "build": "Sat Jun 17 2023", "commit": "Fri May 26 2023" },
+  "operations": [],
+  "description": "",
+  "contributors": [],
+  "dependencies": ""
+}
