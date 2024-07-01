@@ -4,3 +4,4 @@ package.json
 package-lock.json
 qunit.config.js
 test.js
+test.md
