@@ -1,0 +1,6 @@
+node_modules/
+some_stuff/
+package.json
+package-lock.json
+qunit.config.js
+test.js

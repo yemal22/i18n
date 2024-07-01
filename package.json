@@ -1,0 +1,23 @@
+{
+  "name": "i18n",
+  "version": "1.0.0",
+  "main": "browse.js",
+  "scripts": {
+    "test": "qunit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/register": "^7.24.6",
+    "qunit": "^2.21.0"
+  },
+  "dependencies": {
+    "wepback": "^1.0.0"
+  }
+}
