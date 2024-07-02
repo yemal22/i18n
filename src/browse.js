@@ -21,11 +21,16 @@ let realInstance = {
         let json = JSON.parse(jsonFile)
         let roots = []
         const allModules = json.views
-        
-        allModules.map((module) => {
-            let root = module.template[0]
-            roots.push(root)
-        })
+
+        if (allModules) {
+            allModules.map((module) => {
+                let template = module.template;
+                if (template && template.length > 0) {
+                    let root = template[0];
+                    roots.push(root);
+                }
+            });
+        }
         
         roots.map((root) => {
             realInstance.browseRootChildrens(root)

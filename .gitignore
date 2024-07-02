@@ -4,3 +4,6 @@ package.json
 package-lock.json
 qunit.config.js
 test.js
+src/test.json
+test/test.json
+test.md
