@@ -1,4 +1,4 @@
-import Browse from "./browse.js";
+import Explore from './explore.js';
 import fs from 'node:fs/promises';
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,9 +7,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const filePath = path.resolve(__dirname, 'module.json');
 
-
-
-let browser = Browse.getInstance()
 
 // fetch('./test.json')
 //     .then((response) => {
@@ -24,7 +21,8 @@ let browser = Browse.getInstance()
 
 fs.readFile(filePath, 'utf8')
 .then((data) => {
-    browser.browseModuleJson(data)
+    const jsonData = JSON.parse(data);
+    Explore.exploreModuleJson(jsonData)
 })
 .catch((error) => {
     console.log(error)
